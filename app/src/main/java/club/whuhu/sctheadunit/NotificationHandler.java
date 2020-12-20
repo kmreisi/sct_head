@@ -34,7 +34,7 @@ public class NotificationHandler {
 
         Map<String, Object> data = (Map<String, Object>) params;
 
-        NotificationDescriptor descriptor = new NotificationDescriptor((long) data.get("id"), (String) data.get("package_name"), (String) data.get("key"), (String) data.get("icon"));
+        NotificationDescriptor descriptor = new NotificationDescriptor((long) data.get("id"), (String) data.get("title"), (String) data.get("text"), (String) data.get("icon"));
 
         // search for an entry with the ID
         int pos = 0;
@@ -48,10 +48,6 @@ public class NotificationHandler {
         }
 
         if (found != null) {
-            // if (!found.hasChanged(descriptor)) {
-            //     // nothing to do
-            //     return;
-            // }
 
             // update element
             list.set(pos, descriptor);
@@ -78,28 +74,28 @@ public class NotificationHandler {
         private final long id;
 
 
-        private final String name;
-        private final String description;
+        private final String title;
+        private final String text;
 
         private final Bitmap icon;
 
-        public NotificationDescriptor(long id, String name, String description, String base64) {
+        public NotificationDescriptor(long id, String title, String text, String icon) {
             this.id = id;
-            this.name = name;
-            this.description = description;
+            this.title = title;
+            this.text = text;
 
-            if (base64 != null) {
+            if (icon != null) {
                 Bitmap received = null;
                 try {
-                    byte[] byteArray = Base64.decode(base64, Base64.DEFAULT);
+                    byte[] byteArray = Base64.decode(icon, Base64.DEFAULT);
                     received = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
                 } catch (Exception e) {
 
                     e.printStackTrace();
                 }
-                icon = received;
+                this.icon = received;
             } else {
-                icon = null;
+                this.icon = null;
             }
 
         }
@@ -109,19 +105,15 @@ public class NotificationHandler {
         }
 
         public String getName() {
-            return name;
+            return title;
         }
 
         public String getDescription() {
-            return description;
+            return text;
         }
 
         public Bitmap getIcon() {
             return icon;
-        }
-
-        boolean hasChanged(NotificationDescriptor other) {
-            return id != other.id || !name.equals(other.name) || !description.equals(other.description);
         }
     }
 
