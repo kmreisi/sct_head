@@ -42,9 +42,13 @@ public class Dashboard extends AppCompatActivity {
 
     private static Controller controller;
 
+    private NotificationHandler notificationHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        notificationHandler = new NotificationHandler(this);
 
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -89,23 +93,19 @@ public class Dashboard extends AppCompatActivity {
         jrpc.register("navigation_notification", new JRPC.Method() {
             @Override
             public void call(JRPC.Response r, Object params) throws JRPC.Error {
-                String destination;
-                String distance;
-                String next_turn;
-                String eta;
+
             }
         });
         jrpc.register("notification", new JRPC.Method() {
             @Override
             public void call(JRPC.Response r, Object params) throws JRPC.Error {
-
+                System.out.println("XXXXXXXXXXXXXXXX EVENT added: " + params);
+                if (notificationHandler != null) {
+                    notificationHandler.update(params);
+                }
             }
         });
-    });
-
-
     }
-
 
     @Override
     protected void onStop() {

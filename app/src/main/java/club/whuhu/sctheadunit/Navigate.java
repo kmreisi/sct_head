@@ -69,14 +69,12 @@ public class Navigate extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigate);
 
-
         final ListView listView = (ListView) findViewById(R.id.navigate_locations_list);
         final List<LocationDescriptor> array = new ArrayList<>();
         final LocationDescriptorAdapter adapter = new LocationDescriptorAdapter(this, array);
 
         final Map<String,String> dummy = new HashMap<>();
         dummy.put("dummy", "dummy");
-
 
         listView.setAdapter(adapter);
 

@@ -250,7 +250,11 @@ public class Parser {
                     // on escaped mode append and reset escape mode
                     if (ctx.escaped) {
                         ctx.escaped = false;
-                        read.append(c);
+                        if (c == 'n') {
+                            read.append('\n');
+                        } else {
+                            read.append(c);
+                        }
                         break;
                     }
 
@@ -355,8 +359,11 @@ public class Parser {
                     // on escaped mode append and reset escape mode
                     if (ctx.escaped) {
                         ctx.escaped = false;
-                        read.append(c);
-                        break;
+                        if (c == 'n') {
+                            read.append('\n');
+                        } else {
+                            read.append(c);
+                        }
                     }
 
                     // detect escape mode

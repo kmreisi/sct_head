@@ -7,11 +7,12 @@
         android:id="@+id/textName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="14dp"
+        android:layout_marginTop="14dp"
         android:text="Name"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="14dp"
-        android:layout_marginLeft="14dp"/>
+        android:textColor="@color/White100Percent" />
 
     <TextView
         android:id="@+id/textLocation"
