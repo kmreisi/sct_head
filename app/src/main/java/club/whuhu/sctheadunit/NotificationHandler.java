@@ -3,8 +3,6 @@ package club.whuhu.sctheadunit;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,15 +12,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Array;
-import java.net.DatagramSocket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import club.whuhu.sctheadunit.jrpc.JRPC;
 
 public class NotificationHandler {
 
@@ -31,6 +23,54 @@ public class NotificationHandler {
 
     public NotificationHandler(Dashboard dashboard) {
         this.dashboard = dashboard;
+    }
+
+    public void update(Object params) {
+        // create new Notification Descriptor
+        if (!(params instanceof Map)) {
+            // THIS SHOULD NOT HAPPEN!
+            return;
+        }
+
+        Map<String, Object> data = (Map<String, Object>) params;
+
+        NotificationDescriptor descriptor = new NotificationDescriptor((long) data.get("id"), (String) data.get("package_name"), (String) data.get("key"), (String) data.get("icon"));
+
+        // search for an entry with the ID
+        int pos = 0;
+        NotificationDescriptor found = null;
+        for (int i = 0; i < list.size(); ++i) {
+            if (list.get(i).getId() == descriptor.getId()) {
+                pos = i;
+                found = list.get(i);
+                break;
+            }
+        }
+
+        if (found != null) {
+            // if (!found.hasChanged(descriptor)) {
+            //     // nothing to do
+            //     return;
+            // }
+
+            // update element
+            list.set(pos, descriptor);
+        } else {
+            list.add(descriptor);
+        }
+
+        dashboard.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                show();
+            }
+        });
+    }
+
+    public void show() {
+        final ListView listView = (ListView) dashboard.findViewById(R.id.notification_list);
+        final NotificationDescriptorAdapter adapter = new NotificationDescriptorAdapter(dashboard, list);
+        listView.setAdapter(adapter);
     }
 
     public static class NotificationDescriptor {
@@ -43,24 +83,6 @@ public class NotificationHandler {
 
         private final Bitmap icon;
 
-        public long getId() {
-            return id;
-        }
-
-
-        public String getName() {
-            return name;
-        }
-
-
-        public String getDescription() {
-            return description;
-        }
-
-        public Bitmap getIcon() {
-            return icon;
-        }
-
         public NotificationDescriptor(long id, String name, String description, String base64) {
             this.id = id;
             this.name = name;
@@ -69,7 +91,6 @@ public class NotificationHandler {
             if (base64 != null) {
                 Bitmap received = null;
                 try {
-                    System.out.println("ICON " + base64);
                     byte[] byteArray = Base64.decode(base64, Base64.DEFAULT);
                     received = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
                 } catch (Exception e) {
@@ -81,6 +102,22 @@ public class NotificationHandler {
                 icon = null;
             }
 
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public Bitmap getIcon() {
+            return icon;
         }
 
         boolean hasChanged(NotificationDescriptor other) {
@@ -114,54 +151,6 @@ public class NotificationHandler {
             // Return the completed view to render on screen
             return convertView;
         }
-    }
-
-    public void update(Object params) {
-        // create new Notification Descriptor
-        if (!(params instanceof Map)) {
-            // THIS SHOULD NOT HAPPEN!
-            return;
-        }
-
-        Map<String, Object> data = (Map<String, Object>) params;
-
-        NotificationDescriptor descriptor = new NotificationDescriptor((long) data.get("id"), (String) data.get("package_name"), (String) data.get("key"), (String) data.get("icon"));
-
-        // search for an entry with the ID
-        int pos = 0;
-        NotificationDescriptor found = null;
-        for (int i = 0; i < list.size(); ++i) {
-            if (list.get(i).getId() == descriptor.getId()) {
-                pos = i;
-                found = list.get(i);
-                break;
-            }
-        }
-
-        if (found != null) {
-           // if (!found.hasChanged(descriptor)) {
-           //     // nothing to do
-           //     return;
-           // }
-
-            // update element
-            list.set(pos, descriptor);
-        } else {
-            list.add(descriptor);
-        }
-
-        dashboard.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                show();
-            }
-        });
-    }
-
-    public void show() {
-        final ListView listView = (ListView) dashboard.findViewById(R.id.notification_list);
-        final NotificationDescriptorAdapter adapter = new NotificationDescriptorAdapter(dashboard, list);
-        listView.setAdapter(adapter);
     }
 
 

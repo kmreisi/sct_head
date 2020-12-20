@@ -1,36 +1,30 @@
-package club.whuhu.sctheadunit.jrpc;
+package club.whuhu.jrpc;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.InvalidObjectException;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 
-public class JsonUtils
-{
-    public static JSONObject mapToJson(Map<?, ?> data)
-    {
+public class JsonUtils {
+    public static JSONObject mapToJson(Map<?, ?> data) {
         JSONObject object = new JSONObject();
 
-        for (Map.Entry<?, ?> entry : data.entrySet())
-        {
+        for (Map.Entry<?, ?> entry : data.entrySet()) {
             /*
              * Deviate from the original by checking that keys are non-null and
              * of the proper type. (We still defer validating the values).
              */
             String key = (String) entry.getKey();
-            if (key == null)
-            {
+            if (key == null) {
                 throw new NullPointerException("key == null");
             }
-            try
-            {
+            try {
                 object.put(key, wrap(entry.getValue()));
-            }
-            catch (JSONException e)
-            {
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
@@ -38,29 +32,23 @@ public class JsonUtils
         return object;
     }
 
-    public static JSONArray collectionToJson(Collection data)
-    {
+    public static JSONArray collectionToJson(Collection data) {
         JSONArray jsonArray = new JSONArray();
-        if (data != null)
-        {
-            for (Object aData : data)
-            {
+        if (data != null) {
+            for (Object aData : data) {
                 jsonArray.put(wrap(aData));
             }
         }
         return jsonArray;
     }
 
-    public static JSONArray arrayToJson(Object data) throws JSONException
-    {
-        if (!data.getClass().isArray())
-        {
+    public static JSONArray arrayToJson(Object data) throws JSONException {
+        if (!data.getClass().isArray()) {
             throw new JSONException("Not a primitive data: " + data.getClass());
         }
         final int length = Array.getLength(data);
         JSONArray jsonArray = new JSONArray();
-        for (int i = 0; i < length; ++i)
-        {
+        for (int i = 0; i < length; ++i) {
             jsonArray.put(wrap(Array.get(data, i)));
         }
 
@@ -101,4 +89,6 @@ public class JsonUtils
         }
         return null;
     }
+
+
 }

@@ -1,4 +1,4 @@
-package club.whuhu.sctheadunit.jrpc;
+package club.whuhu.jrpc;
 
 import java.io.Closeable;
 

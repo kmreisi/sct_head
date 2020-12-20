@@ -3,7 +3,6 @@ package club.whuhu.sctheadunit;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -24,8 +23,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import club.whuhu.sctheadunit.jrpc.Link;
 
 public class PhoneSelector extends AppCompatActivity {
 

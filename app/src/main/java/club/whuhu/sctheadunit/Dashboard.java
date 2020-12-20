@@ -1,9 +1,6 @@
 package club.whuhu.sctheadunit;
 
-import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SyncStatusObserver;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,13 +8,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import club.whuhu.sctheadunit.jrpc.JRPC;
-import club.whuhu.sctheadunit.jrpc.Link;
+import club.whuhu.jrpc.JRPC;
+import club.whuhu.jrpc.Link;
 
 public class Dashboard extends AppCompatActivity {
 
@@ -99,7 +91,7 @@ public class Dashboard extends AppCompatActivity {
         jrpc.register("notification", new JRPC.Method() {
             @Override
             public void call(JRPC.Response r, Object params) throws JRPC.Error {
-                System.out.println("XXXXXXXXXXXXXXXX EVENT added: " + params);
+                System.out.println("XXXXXXXXXXXXXXXX EVENT added: ");
                 if (notificationHandler != null) {
                     notificationHandler.update(params);
                 }

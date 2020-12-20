@@ -1,4 +1,4 @@
-package club.whuhu.sctheadunit.jrpc;
+package club.whuhu.jrpc;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +38,7 @@ public class Parser {
         boolean complete;
         boolean skipSeperator;
         boolean forwardChar;
-        char c = (char)-1;
+        char c = (char) -1;
 
         Context(InputStreamReader stream) {
             this.state = ParseState.ParseStart;
@@ -53,7 +53,7 @@ public class Parser {
         return c == ' ' || c == '\t' || c == '\n';
     }
 
-    public static  boolean complete(Context ctx, char c, boolean onSeperator) throws InvalidObjectException {
+    public static boolean complete(Context ctx, char c, boolean onSeperator) throws InvalidObjectException {
         if (c == '}') {
             if (ctx.type != ContainerType.CONTAINER_TYPE_OBJECT) {
                 throw new InvalidObjectException("Failed to parse entry, not an object but got: }");
@@ -76,10 +76,10 @@ public class Parser {
             return true;
         }
 
-        return  false;
+        return false;
     }
 
-    public static boolean skip (Context ctx, char c) throws InvalidObjectException {
+    public static boolean skip(Context ctx, char c) throws InvalidObjectException {
         // skip whitespaces
         if (blank(c)) {
             return true;
@@ -107,6 +107,30 @@ public class Parser {
         return (char) c;
     }
 
+    public static char unescape(char c) throws InvalidObjectException {
+        switch (c) {
+            case 'b': // Backspace
+                return '\b';
+            case 'f': // Form feed
+                return '\f';
+            case 'n': // Newline
+                return '\n';
+            case 'r': // Carriage
+                return '\r';
+            case 't': // Tab
+                return '\t';
+            case '"': // Double quote
+                return '\"';
+            case '\\': // Backslash
+                return '\\';
+            case '/': // XXX: how does this get here?!
+                return '/';
+            case '0':
+                return '\0';
+        }
+
+        throw new InvalidObjectException("Failed to unescape character, \'" + c + "\' is not supported!");
+    }
 
     public static Object parse(InputStreamReader stream) throws IOException {
         return parse(new Context(stream));
@@ -115,7 +139,7 @@ public class Parser {
     private static Object parse(Context parentContext) throws IOException {
         final Context ctx = new Context(parentContext.stream);
         ctx.forwardChar = parentContext.forwardChar;
-        char c = (char)-1;
+        char c = (char) -1;
 
         StringBuilder read = new StringBuilder();
         Map<String, Object> object = null;
@@ -221,7 +245,7 @@ public class Parser {
                     }
 
                     // check if complete
-                    if (complete(ctx, c, false)){
+                    if (complete(ctx, c, false)) {
                         parentContext.complete = false;
                         parentContext.skipSeperator = true;
                         return object;
@@ -250,11 +274,7 @@ public class Parser {
                     // on escaped mode append and reset escape mode
                     if (ctx.escaped) {
                         ctx.escaped = false;
-                        if (c == 'n') {
-                            read.append('\n');
-                        } else {
-                            read.append(c);
-                        }
+                        read.append(unescape(c));
                         break;
                     }
 
@@ -306,7 +326,7 @@ public class Parser {
                     }
 
                     // check if complete
-                    if (complete(ctx, c, false)){
+                    if (complete(ctx, c, false)) {
                         parentContext.complete = false;
                         parentContext.skipSeperator = true;
                         return array;
@@ -359,11 +379,8 @@ public class Parser {
                     // on escaped mode append and reset escape mode
                     if (ctx.escaped) {
                         ctx.escaped = false;
-                        if (c == 'n') {
-                            read.append('\n');
-                        } else {
-                            read.append(c);
-                        }
+                        read.append(unescape(c));
+                        break;
                     }
 
                     // detect escape mode

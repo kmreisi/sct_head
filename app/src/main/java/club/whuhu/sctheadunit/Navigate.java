@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import club.whuhu.sctheadunit.jrpc.JRPC;
+import club.whuhu.jrpc.JRPC;
 
 public class Navigate extends AppCompatActivity {
 
@@ -25,7 +25,7 @@ public class Navigate extends AppCompatActivity {
         private String uri;
 
         public String getName() {
-            return  name;
+            return name;
         }
 
         public String getUri() {
@@ -73,7 +73,7 @@ public class Navigate extends AppCompatActivity {
         final List<LocationDescriptor> array = new ArrayList<>();
         final LocationDescriptorAdapter adapter = new LocationDescriptorAdapter(this, array);
 
-        final Map<String,String> dummy = new HashMap<>();
+        final Map<String, String> dummy = new HashMap<>();
         dummy.put("dummy", "dummy");
 
         listView.setAdapter(adapter);
@@ -101,7 +101,7 @@ public class Navigate extends AppCompatActivity {
                             System.out.println("NAVIGATE ERROR " + error);
 
                         }
-                    }) );
+                    }));
                 }
 
                 // TODO spawn navigation

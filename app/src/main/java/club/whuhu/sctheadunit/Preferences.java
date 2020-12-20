@@ -7,10 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import club.whuhu.sctheadunit.jrpc.Link;
 
 public class Preferences implements SharedPreferences.OnSharedPreferenceChangeListener {
 

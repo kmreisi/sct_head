@@ -2,10 +2,9 @@ package club.whuhu.sctheadunit;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
-import android.content.SharedPreferences;
 
-import club.whuhu.sctheadunit.jrpc.JRPC;
-import club.whuhu.sctheadunit.jrpc.Link;
+import club.whuhu.jrpc.JRPC;
+import club.whuhu.jrpc.Link;
 
 public class Controller  {
 

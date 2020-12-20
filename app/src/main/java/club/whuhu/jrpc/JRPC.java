@@ -1,4 +1,4 @@
-package club.whuhu.sctheadunit.jrpc;
+package club.whuhu.jrpc;
 
 import org.json.JSONObject;
 
@@ -149,8 +149,6 @@ public class JRPC {
         try {
             // try to parse the full object
             data = (Map<String, Object>)Parser.parse(ctx.in);
-
-            System.out.print("JRPC Received: " + new JSONObject(data).toString());
         } catch (Exception e) {
             System.err.println("ERROR: " + e.getMessage());
             e.printStackTrace();
@@ -223,7 +221,6 @@ public class JRPC {
             return;
         }
         try {
-            System.out.println("JRPC DATA " + data);
             ctx.out.write(data.getBytes("UTF-8"));
             ctx.out.flush();
         } catch (IOException e) {

@@ -1,4 +1,4 @@
-package club.whuhu.sctheadunit.jrpc;
+package club.whuhu.jrpc;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
