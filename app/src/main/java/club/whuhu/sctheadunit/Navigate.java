@@ -83,7 +83,7 @@ public class Navigate extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 LocationDescriptor descriptor = (LocationDescriptor) listView.getItemAtPosition(position);
 
-                JRPC jrpc = Dashboard.getJrpc();
+                JRPC jrpc = Dashboard.getController().getEventJrpc();
                 if (jrpc != null) {
                     Map<String, String> params = new HashMap<>();
                     params.put("name", descriptor.getName());
@@ -111,7 +111,7 @@ public class Navigate extends AppCompatActivity {
         });
 
         // request locations
-        JRPC jrpc = Dashboard.getJrpc();
+        JRPC jrpc = Dashboard.getController().getEventJrpc();
         jrpc.send(new JRPC.Request("get_places", dummy, new JRPC.Request.CallbackResponse() {
             @Override
             public void call(Object params) {

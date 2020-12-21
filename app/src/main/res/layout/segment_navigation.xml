@@ -22,13 +22,4 @@
         android:layout_below="@+id/textName"
         android:layout_alignLeft="@+id/textName"/>
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        app:srcCompat="@drawable/ic_nav_up" />
-
-
 </RelativeLayout>

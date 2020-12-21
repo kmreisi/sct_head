@@ -34,7 +34,7 @@ public class NotificationHandler {
 
         Map<String, Object> data = (Map<String, Object>) params;
 
-        NotificationDescriptor descriptor = new NotificationDescriptor((long) data.get("id"), (String) data.get("title"), (String) data.get("text"), (String) data.get("icon"));
+        NotificationDescriptor descriptor = new NotificationDescriptor((long) data.get("id"), (String) data.get("title"), (String) data.get("text"), (String) data.get("icon_md5"));
 
         // search for an entry with the ID
         int pos = 0;
@@ -72,48 +72,35 @@ public class NotificationHandler {
     public static class NotificationDescriptor {
 
         private final long id;
-
-
         private final String title;
         private final String text;
+        private final String iconMd5;
 
-        private final Bitmap icon;
-
-        public NotificationDescriptor(long id, String title, String text, String icon) {
+        public NotificationDescriptor(long id, String title, String text, String iconMd5) {
             this.id = id;
             this.title = title;
             this.text = text;
-
-            if (icon != null) {
-                Bitmap received = null;
-                try {
-                    byte[] byteArray = Base64.decode(icon, Base64.DEFAULT);
-                    received = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-                } catch (Exception e) {
-
-                    e.printStackTrace();
-                }
-                this.icon = received;
-            } else {
-                this.icon = null;
-            }
-
+            this.iconMd5 = iconMd5;
         }
 
         public long getId() {
             return id;
         }
 
-        public String getName() {
+        public String getTitle() {
             return title;
         }
 
-        public String getDescription() {
+        public String getText() {
             return text;
         }
 
+        public String getIconMd5() {
+            return iconMd5;
+        }
+
         public Bitmap getIcon() {
-            return icon;
+              return  IconCache.getInstance().getIcon(iconMd5);
         }
     }
 
@@ -131,15 +118,13 @@ public class NotificationHandler {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.listitem_notification, parent, false);
             }
             // Lookup view for data population
-            TextView textName = (TextView) convertView.findViewById(R.id.textName);
-            TextView textLocation = (TextView) convertView.findViewById(R.id.textDescription);
-            ImageView imageView = (ImageView) convertView.findViewById(R.id.imageNoti);
+            TextView textName = (TextView) convertView.findViewById(R.id.title);
+            TextView textLocation = (TextView) convertView.findViewById(R.id.text);
+            ImageView imageView = (ImageView) convertView.findViewById(R.id.icon);
             // Populate the data into the template view using the data object
-            textName.setText(notification.getName());
-            textLocation.setText(notification.getDescription());
-            if (notification.getIcon() != null) {
-                imageView.setImageBitmap(notification.getIcon());
-            }
+            textName.setText(notification.getTitle());
+            textLocation.setText(notification.getText());
+            imageView.setImageBitmap(notification.getIcon());
             // Return the completed view to render on screen
             return convertView;
         }

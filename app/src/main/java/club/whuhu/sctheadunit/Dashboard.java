@@ -1,6 +1,7 @@
 package club.whuhu.sctheadunit;
 
 import android.content.Intent;
+import android.graphics.drawable.Icon;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -39,6 +40,9 @@ public class Dashboard extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        IconCache.init(this);
+        Storage.init(this);
 
         notificationHandler = new NotificationHandler(this);
 
@@ -81,14 +85,7 @@ public class Dashboard extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         controller = new Controller(this, linkStateListener);
-        JRPC jrpc = getJrpc();
-        jrpc.register("navigation_notification", new JRPC.Method() {
-            @Override
-            public void call(JRPC.Response r, Object params) throws JRPC.Error {
-
-            }
-        });
-        jrpc.register("notification", new JRPC.Method() {
+        controller.getEventJrpc().register("notification", new JRPC.Method() {
             @Override
             public void call(JRPC.Response r, Object params) throws JRPC.Error {
                 System.out.println("XXXXXXXXXXXXXXXX EVENT added: ");
@@ -107,11 +104,16 @@ public class Dashboard extends AppCompatActivity {
         }
     }
 
-    public synchronized static JRPC getJrpc() {
-        if (controller == null) {
-            return  null;
-        }
+    public static Controller getController() {
+        return controller;
+    }
 
-        return  controller.getJrpc();
+    public void receivedIcons() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                notificationHandler.show();
+            }
+        });
     }
 }
