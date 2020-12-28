@@ -20,26 +20,25 @@ public class Preferences implements SharedPreferences.OnSharedPreferenceChangeLi
 
     private static Preferences instance;
 
-    private final Activity activity;
+    private Activity activity = null;
     private final List<IChangeListener> listenerList;
 
 
-    private Preferences(Activity activity) {
-        this.activity = activity;
+    private Preferences() {
         this.listenerList = new CopyOnWriteArrayList<>();
-
-        getPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
-    public synchronized static void init(Activity ac) {
-        if (instance == null) {
-            instance = new Preferences(ac);
+    public void init(Activity activity) {
+        if (this.activity != null) {
+            return;
         }
+        this.activity = activity;
+        getPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
     public synchronized static Preferences getInstance() {
         if (instance == null) {
-            throw new RuntimeException("NOT READY");
+        instance = new Preferences();
         }
         return instance;
     }

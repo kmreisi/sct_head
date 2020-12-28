@@ -17,21 +17,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Navigate"
-            android:label="Navigate to..."
-            android:theme="@style/CustomDialog">
+        <activity android:name=".NotificationListActivity"
+            android:label="Notifications">
         </activity>
-        <activity android:name=".PhoneSelector"
-            android:label="Select Phone..."
-            android:theme="@style/CustomDialog">
+        <activity android:name=".ActionListActivity"
+            android:label="Notifications">
         </activity>
     </application>
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 </manifest>

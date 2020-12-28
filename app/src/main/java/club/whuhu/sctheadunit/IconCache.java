@@ -2,16 +2,13 @@ package club.whuhu.sctheadunit;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
 import android.util.Base64;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import club.whuhu.jrpc.JRPC;
+import club.whuhu.sctheadunit.controller.Controller;
 
 public class IconCache {
 
@@ -35,7 +32,11 @@ public class IconCache {
         return instance;
     }
 
-    public Bitmap getIcon(final String md5) {
+    public static interface IGotIcon {
+        void call(Bitmap icon);
+    }
+
+    public Bitmap getIcon(final String md5, final IGotIcon callback) {
         if (md5 == null) {
             return  dummy;
         }
@@ -55,7 +56,7 @@ public class IconCache {
                 return  icon;
             }
 
-            JRPC jrpc = Dashboard.getController().getIconJrpc();
+            JRPC jrpc = Controller.getInstance().getIconJrpc();
             if (jrpc != null) {
                 // icon does not exist yet query from phone
                 // in the mean time provide our dummy icon for all requests
@@ -73,11 +74,16 @@ public class IconCache {
 
                         try {
                             byte[] byteArray = Base64.decode(base, Base64.DEFAULT);
-                            Bitmap icon = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+                            final Bitmap icon = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
                             Storage.getInstance().storeIcon(md5, byteArray);
                             icons.put(md5, icon);
 
-                            dashboard.receivedIcons();
+                            dashboard.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    callback.call(icon);
+                                }
+                            });
                         } catch (Exception e) {
 
                             e.printStackTrace();

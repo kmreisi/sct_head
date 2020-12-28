@@ -1,5 +1,6 @@
 package club.whuhu.sctheadunit;
 
+import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
@@ -16,8 +17,7 @@ public class Storage {
     private final Dashboard dashboard;
 
     private File getSctFolder() {
-        File extStore = Environment.getExternalStorageDirectory();
-        File folder = new File(extStore, "sct");
+        File folder = new File(dashboard.getFilesDir(), "sct");
         if (!folder.exists()) {
             folder.mkdirs();
         }
@@ -54,29 +54,29 @@ public class Storage {
             buf.read(bytes, 0, bytes.length);
             buf.close();
         } catch (Exception e) {
-            e.printStackTrace();
-            return  null;
+            return null;
         }
 
-        return  bytes;
+        return bytes;
     }
 
     public Bitmap getIcon(String md5) {
 
-        byte[] data = readFile(new File(getIconsFolder(),md5 + ".bmp"));
+        byte[] data = readFile(new File(getIconsFolder(), md5 + ".jpg"));
         if (data == null) {
-            return  null;
+            return null;
         }
 
         try {
             return BitmapFactory.decodeByteArray(data, 0, data.length);
         } catch (Exception e) {
             e.printStackTrace();
-            return  null;
+            return null;
         }
     }
 
-    private void writeFile(File file, byte[] data) {
+    public void storeIcon(String md5, byte[] data) {
+        File file = new File(getIconsFolder(), md5 + ".jpg");
         try {
             if (!file.exists()) {
                 file.createNewFile();
@@ -87,9 +87,5 @@ public class Storage {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public void storeIcon(String md5, byte[] data){
-        writeFile(new File(getIconsFolder(), md5 + ".bmp"), data);
     }
 }
