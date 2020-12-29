@@ -47,7 +47,7 @@ public class NotificationListActivity extends AppCompatActivity {
             @Override
             public Object getKey(Object data) {
                 if (data instanceof NotificationHandler.PhoneNotification) {
-                    return ((NotificationHandler.PhoneNotification) data).getId();
+                    return ((NotificationHandler.PhoneNotification) data).getKey();
                 }
                 return null;
             }
@@ -78,7 +78,8 @@ public class NotificationListActivity extends AppCompatActivity {
 
                         @Override
                         public boolean longClicked(UiList.Scope scope, UiList.Entry entry) {
-                            return false;
+                            notification.hide();
+                            return true;
                         }
                     });
                 }
@@ -109,7 +110,7 @@ public class NotificationListActivity extends AppCompatActivity {
         }
 
         if (last != null) {
-            notificationScope.selectByKey(last.getId());
+            notificationScope.selectByKey(last.getKey());
         }
     }
 

@@ -24,7 +24,7 @@ public class IconCache {
         this.dummy = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
     }
 
-    public  static void  init(Dashboard dashboard) {
+    public  static void init(Dashboard dashboard) {
         instance = new IconCache(dashboard);
     }
 

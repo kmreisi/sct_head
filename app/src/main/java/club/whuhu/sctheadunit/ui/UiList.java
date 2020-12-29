@@ -247,11 +247,9 @@ public class UiList {
             show();
         }
 
-
         public Scope(final ListView list, Context context, List<Entry> data, IUpdater updater) {
             this(null, null, list, context, data, updater);
         }
-
 
         public void clear() {
             adapter.clear();

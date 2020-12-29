@@ -17,12 +17,13 @@ import club.whuhu.sctheadunit.ui.UiList;
 public class NotificationHandler {
 
     public static class PhoneNotification {
-        private final long id;
+        private final String key;
         private String title;
         private String text;
         private String iconMd5;
         private List<Action> actions;
         private boolean visible;
+        private boolean dash;
 
         public static class Action {
             private final PhoneNotification parent;
@@ -53,7 +54,7 @@ public class NotificationHandler {
 
             public void doIt() {
                 Map<String, Object> data = new HashMap<>();
-                data.put("id", parent.id);
+                data.put("key", parent.key);
                 data.put("title", getTitle());
 
                 Controller.getInstance().getEventJrpc().send(new JRPC.Request("notification_action", data, null, null));
@@ -62,7 +63,7 @@ public class NotificationHandler {
 
         public PhoneNotification(Object data) {
             Map<String, Object> params = (Map<String, Object>) data;
-            id = (long) params.get("id");
+            key = (String) params.get("key");
             load(data);
         }
 
@@ -72,6 +73,7 @@ public class NotificationHandler {
             setText((String) params.get("text"));
             setIconMd5((String) params.get("icon_md5"));
             setActions((List<Object>) params.get("actions"));
+            setDash((Boolean) params.get("dash"));
             setVisible(true);
         }
 
@@ -91,6 +93,14 @@ public class NotificationHandler {
             this.visible = visible;
         }
 
+        public void setDash(boolean dash) {
+            this.dash = dash;
+        }
+
+        public boolean isDash() {
+            return dash;
+        }
+
         public void setActions(List<Object> data) {
             if (data != null) {
                 actions = new ArrayList<>();
@@ -102,8 +112,15 @@ public class NotificationHandler {
             }
         }
 
-        public long getId() {
-            return id;
+        public void hide() {
+            Map<String, Object> data = new HashMap<>();
+            data.put("key", key);
+
+            Controller.getInstance().getEventJrpc().send(new JRPC.Request("notification_cancel", data, null, null));
+        }
+
+        public String getKey() {
+            return key;
         }
 
         public String getTitle() {
@@ -140,19 +157,19 @@ public class NotificationHandler {
         notifications = new TreeSet<>(new Comparator<PhoneNotification>() {
             @Override
             public int compare(PhoneNotification o1, PhoneNotification o2) {
-                if (o1.getId() == o2.getId()) return 0;
-                if (o1.getId() > o2.getId()) return 1;
-                return -1;
+                return o1.getKey().compareTo(o2.getKey());
             }
         });
-
 
         controller.clientEvent.getJrpc().register("notification", new JRPC.Method() {
             @Override
             public void call(JRPC.Response r, Object params) throws JRPC.Error {
                 PhoneNotification notification = new PhoneNotification(params);
-                notifications.remove(notification);
-                notifications.add(notification);
+                synchronized (notifications) {
+
+                    notifications.remove(notification);
+                    notifications.add(notification);
+                }
                 if (listener != null) {
                     listener.onNotification(notification);
                 }
@@ -164,12 +181,14 @@ public class NotificationHandler {
             public void call(JRPC.Response r, Object params) throws JRPC.Error {
                 PhoneNotification found = null;
 
-                long id = (long)((Map<String, Object>)params).get("id");
+                String key = (String)((Map<String, Object>)params).get("key");
 
-                for (PhoneNotification notification : notifications) {
-                    if(notification.getId() == id) {
-                        found = notification;
-                        break;
+                synchronized (notifications) {
+                    for (PhoneNotification notification : notifications) {
+                        if (notification.getKey().equals(key)) {
+                            found = notification;
+                            break;
+                        }
                     }
                 }
 
@@ -184,7 +203,27 @@ public class NotificationHandler {
     }
 
     public List<PhoneNotification> getNotifications() {
-        return Arrays.asList(notifications.toArray(new PhoneNotification[0]));
+        List<PhoneNotification> visible = new ArrayList<>();
+        synchronized (notifications) {
+            for (PhoneNotification notification : notifications) {
+                if (notification.isVisible()) {
+                    visible.add(notification);
+                }
+            }
+        }
+        return visible;
+    }
+
+    public void clear() {
+        synchronized (notifications) {
+            for (PhoneNotification notification : notifications) {
+                notification.setVisible(false);
+                if (listener != null) {
+                    listener.onNotification(notification);
+                }
+            }
+            notifications.clear();
+        }
     }
 
     public void setListener(IUpdateListener listener) {

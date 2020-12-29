@@ -9,6 +9,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.EventListener;
 
 public class Storage {
 
@@ -17,7 +18,7 @@ public class Storage {
     private final Dashboard dashboard;
 
     private File getSctFolder() {
-        File folder = new File(dashboard.getFilesDir(), "sct");
+        File folder = new File(Environment.getExternalStorageDirectory(), "sct");
         if (!folder.exists()) {
             folder.mkdirs();
         }
@@ -60,9 +61,12 @@ public class Storage {
         return bytes;
     }
 
-    public Bitmap getIcon(String md5) {
+    private static String escape(String md5) {
+        return md5.replaceAll(":|/|\\|", "-");
+    }
 
-        byte[] data = readFile(new File(getIconsFolder(), md5 + ".jpg"));
+    public Bitmap getIcon(String md5) {
+        byte[] data = readFile(new File(getIconsFolder(), escape(md5) + ".jpg"));
         if (data == null) {
             return null;
         }
@@ -76,7 +80,7 @@ public class Storage {
     }
 
     public void storeIcon(String md5, byte[] data) {
-        File file = new File(getIconsFolder(), md5 + ".jpg");
+        File file = new File(getIconsFolder(), escape(md5) + ".jpg");
         try {
             if (!file.exists()) {
                 file.createNewFile();

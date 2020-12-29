@@ -50,12 +50,12 @@ public class Controller  {
             @Override
             public void connected() {
                 System.out.println("CONNECTED");
-
             }
 
             @Override
             public void disconnected() {
                 System.out.println("DISCONNECTED!");
+                notificationHandler.clear();
             }
         };
 
