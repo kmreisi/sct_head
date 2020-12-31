@@ -3,8 +3,13 @@ package club.whuhu.sctheadunit.ui;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.media.DrmInitData;
+import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -109,13 +114,16 @@ public class UiList {
                 // Populate the data into the template view using the data object
                 title.setText(getTitle());
                 text.setText(getText());
-
-                icon.setImageBitmap(IconCache.getInstance().getIcon(getIconMd5(), new IconCache.IGotIcon() {
-                    @Override
-                    public void call(Bitmap update) {
-                        icon.setImageBitmap(update);
-                    }
-                }));
+                String iconMd5 = getIconMd5();
+                icon.setVisibility(iconMd5 == null ? View.INVISIBLE : View.VISIBLE);
+                if (iconMd5 != null) {
+                    icon.setImageBitmap(IconCache.getInstance().getIcon(getIconMd5(), new IconCache.IGotIcon() {
+                        @Override
+                        public void call(Bitmap update) {
+                            icon.setImageBitmap(update);
+                        }
+                    }));
+                }
             } catch (Exception e) {
                 // not visible anymore, this is a dirty HACK
                 view = null;
@@ -126,7 +134,22 @@ public class UiList {
             return null;
         }
 
-        ;
+        public Spannable getSpannable() {
+            StringBuilder complete = new StringBuilder();
+
+            if (title != null && !title.isEmpty()) {
+                complete.append(title + "\n");
+            }
+            if (text != null) {
+                complete.append(text);
+            }
+
+            Spannable s = new SpannableString(complete);
+            if (title != null && !title.isEmpty()) {
+                s.setSpan(new StyleSpan(Typeface.BOLD), 0, title.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            return  s;
+        }
 
         public void onClick(Scope scope) {
             if (onClick != null) {
@@ -155,21 +178,18 @@ public class UiList {
                 view = LayoutInflater.from(getContext()).inflate(R.layout.listitem_entry, parent, false);
             }
 
-            // Get view elements
-            TextView title = (TextView) view.findViewById(R.id.title);
-            TextView text = (TextView) view.findViewById(R.id.text);
-            final ImageView icon = (ImageView) view.findViewById(R.id.icon);
-
             // Populate view
             Entry entry = getItem(position);
-
             if (entry == null) {
                 return null;
             }
-            title.setText(entry.getTitle());
-            text.setText(entry.getText());
+
             entry.setView(view);
 
+            TextView title = (TextView) view.findViewById(R.id.text);
+            title.setText(entry.getSpannable());
+
+            final ImageView icon = (ImageView) view.findViewById(R.id.icon);
             icon.setImageBitmap(IconCache.getInstance().getIcon(entry.getIconMd5(), new IconCache.IGotIcon() {
                 @Override
                 public void call(Bitmap update) {
@@ -247,8 +267,8 @@ public class UiList {
             show();
         }
 
-        public Scope(final ListView list, Context context, List<Entry> data, IUpdater updater) {
-            this(null, null, list, context, data, updater);
+        public Scope(final ListView list, Context context, IUpdater updater) {
+            this(null, null, list, context, new ArrayList<Entry>(), updater);
         }
 
         public void clear() {

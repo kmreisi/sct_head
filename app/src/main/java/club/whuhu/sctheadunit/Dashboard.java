@@ -1,5 +1,6 @@
 package club.whuhu.sctheadunit;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -21,8 +22,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.sql.Time;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import club.whuhu.jrpc.JRPC;
 import club.whuhu.sctheadunit.controller.Controller;
@@ -43,13 +48,6 @@ public class Dashboard extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Preferences.getInstance().init(this);
-
-        Controller.getInstance();
-
-        IconCache.init(this);
-        Storage.init(this);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -100,15 +98,15 @@ public class Dashboard extends AppCompatActivity {
         cnt = new NotificationContainer();
         notifications.put(notification.getKey(), cnt);
 
-        cnt.notificationIcon = new ImageView(this);
-        cnt.notificationIcon.setAdjustViewBounds(true);
-        cnt.notificationIcon.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
-        notificationList.addView(cnt.notificationIcon);
-
         if (notification.isDash()) {
             cnt.dashView = LayoutInflater.from(this).inflate(R.layout.listitem_dash, dashList, false);
             cnt.dashView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
             dashList.addView(cnt.dashView);
+        } else {
+            cnt.notificationIcon = new ImageView(this);
+            cnt.notificationIcon.setAdjustViewBounds(true);
+            cnt.notificationIcon.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
+            notificationList.addView(cnt.notificationIcon);
         }
 
         return cnt;
@@ -125,25 +123,73 @@ public class Dashboard extends AppCompatActivity {
         if (notification.isVisible()) {
 
             final ImageView icon = cnt.dashView == null ? null : (ImageView) cnt.dashView.findViewById(R.id.icon);
-            TextView title = cnt.dashView == null ? null : (TextView) cnt.dashView.findViewById(R.id.title);
             TextView text = cnt.dashView == null ? null : (TextView) cnt.dashView.findViewById(R.id.text);
+            LinearLayout actionList = cnt.dashView == null ? null : (LinearLayout) cnt.dashView.findViewById(R.id.actions);
 
             Bitmap bitmap = IconCache.getInstance().getIcon(notification.getIconMd5(), new IconCache.IGotIcon() {
                 @Override
                 public void call(Bitmap bitmap) {
-                    cnt.notificationIcon.setImageBitmap(bitmap);
+                    if (cnt.notificationIcon != null) {
+                        cnt.notificationIcon.setImageBitmap(bitmap);
+                    }
                     if (icon != null) {
                         icon.setImageBitmap(bitmap);
                     }
                 }
             });
 
-            cnt.notificationIcon.setImageBitmap(bitmap);
+            if (cnt.notificationIcon != null) {
+                cnt.notificationIcon.setImageBitmap(bitmap);
+            }
 
             if (cnt.dashView != null) {
-                title.setText(notification.getTitle());
-                text.setText(notification.getText());
+                text.setText(notification.getSpannable());
                 icon.setImageBitmap(bitmap);
+                actionList.removeAllViews();
+                final List<NotificationHandler.PhoneNotification.Action> actions = notification.getActions();
+                for (final NotificationHandler.PhoneNotification.Action action : actions) {
+                    final String iconMd5 = action.getIconMd5();
+                    if (iconMd5 == null) {
+                        continue;
+                    }
+                    final ImageView image = new ImageView(this);
+                    image.setAdjustViewBounds(true);
+                    image.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
+                    image.setImageBitmap(IconCache.getInstance().getIcon(iconMd5, new IconCache.IGotIcon() {
+                        @Override
+                        public void call(Bitmap bitmap) {
+                            image.setImageBitmap(bitmap);
+                        }
+                    }));
+
+                    // use an image we don't want to have the keyboard focusing, these should only be clicked from the touchscreen!
+                    image.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            action.doIt();
+                            image.setImageBitmap(IconCache.getInstance().getInvertedIcon(iconMd5));
+                            new Timer().schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            image.setImageBitmap(IconCache.getInstance().getIcon(iconMd5, new IconCache.IGotIcon() {
+                                                @Override
+                                                public void call(Bitmap bitmap) {
+                                                    image.setImageBitmap(bitmap);
+                                                }
+                                            }));
+                                        }
+                                    });
+
+                                }
+                            }, 100);
+                        }
+                    });
+                    actionList.addView(image);
+                }
+                actionList.setGravity(actionList.getChildCount());
             }
         } else {
             notificationList.removeView(cnt.notificationIcon);

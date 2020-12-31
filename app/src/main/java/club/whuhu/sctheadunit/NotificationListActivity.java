@@ -4,18 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import club.whuhu.jrpc.JRPC;
 import club.whuhu.sctheadunit.controller.Controller;
 import club.whuhu.sctheadunit.controller.NotificationHandler;
 import club.whuhu.sctheadunit.ui.UiList;
@@ -38,11 +32,11 @@ public class NotificationListActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 
-        setContentView(R.layout.activity_notification_list);
+        setContentView(R.layout.activity_list);
         this.activity = this;
 
         ListView listView = (ListView) findViewById(R.id.notification_list);
-        notificationScope = new UiList.Scope(listView, this, new ArrayList<UiList.Entry>(), new UiList.Scope.IUpdater() {
+        notificationScope = new UiList.Scope(listView, this, new UiList.Scope.IUpdater() {
 
             @Override
             public Object getKey(Object data) {

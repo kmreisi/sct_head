@@ -1,5 +1,6 @@
 package club.whuhu.sctheadunit;
 
+import android.app.Activity;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,10 +16,11 @@ public class Storage {
 
     private static Storage instance;
 
-    private final Dashboard dashboard;
+    private Activity activity;
 
     private File getSctFolder() {
-        File folder = new File(Environment.getExternalStorageDirectory(), "sct");
+       // File folder = new File(Environment.getExternalStorageDirectory(), "sct");
+        File folder = new File(activity.getFilesDir(), "sct");
         if (!folder.exists()) {
             folder.mkdirs();
         }
@@ -35,15 +37,17 @@ public class Storage {
         return folder;
     }
 
-    Storage(Dashboard dashboard) {
-        this.dashboard = dashboard;
+    public synchronized void init(Activity activity) {
+        if (this.activity != null) {
+            return;
+        }
+        this.activity = activity;
     }
 
-    public static void init(Dashboard dashboard) {
-        instance = new Storage(dashboard);
-    }
-
-    public static Storage getInstance() {
+    public synchronized static Storage getInstance() {
+        if (instance == null) {
+            instance = new Storage();
+        }
         return instance;
     }
 

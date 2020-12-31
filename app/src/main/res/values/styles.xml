@@ -8,17 +8,14 @@
     </style>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowNoTitle">true</item>
-    </style>
-
-    <style name="CustomDialog" parent="Theme.AppCompat.DayNight.Dialog">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
-        <item name="colorControlHighlight">@color/colorAccent</item>
+        <item name="colorPrimary">@color/White100Percent</item>
+        <item name="colorPrimaryDark">@color/White100Percent</item>
+        <item name="colorAccent">@color/White100Percent</item>
+        <item name="android:textColor">@color/White100Percent</item>
+        <item name="android:colorForeground">@color/White100Percent</item>
+        <item name="android:windowBackground">@color/Black0Percent</item>
     </style>
 
     <style name="DialogTheme" parent="Theme.AppCompat.DayNight.Dialog">

@@ -1,6 +1,11 @@
 package club.whuhu.sctheadunit.controller;
 
 
+import android.graphics.Typeface;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -76,6 +81,24 @@ public class NotificationHandler {
             setDash((Boolean) params.get("dash"));
             setVisible(true);
         }
+
+        public Spannable getSpannable() {
+            StringBuilder complete = new StringBuilder();
+
+            if (title != null && !title.isEmpty()) {
+                complete.append(title + "\n");
+            }
+            if (text != null) {
+                complete.append(text);
+            }
+
+            Spannable s = new SpannableString(complete);
+            if (title != null && !title.isEmpty()) {
+                s.setSpan(new StyleSpan(Typeface.BOLD), 0, title.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+            return  s;
+        }
+
 
         public void setIconMd5(String iconMd5) {
             this.iconMd5 = iconMd5;
@@ -161,7 +184,7 @@ public class NotificationHandler {
             }
         });
 
-        controller.clientEvent.getJrpc().register("notification", new JRPC.Method() {
+        controller.getEventJrpc().register("notification", new JRPC.Method() {
             @Override
             public void call(JRPC.Response r, Object params) throws JRPC.Error {
                 PhoneNotification notification = new PhoneNotification(params);
@@ -176,7 +199,7 @@ public class NotificationHandler {
             }
         });
 
-        controller.clientEvent.getJrpc().register("notification_removed", new JRPC.Method() {
+        controller.getEventJrpc().register("notification_removed", new JRPC.Method() {
             @Override
             public void call(JRPC.Response r, Object params) throws JRPC.Error {
                 PhoneNotification found = null;

@@ -1,11 +1,13 @@
 package club.whuhu.sctheadunit;
 
 import android.app.Activity;
+import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -28,7 +30,7 @@ public class Preferences implements SharedPreferences.OnSharedPreferenceChangeLi
         this.listenerList = new CopyOnWriteArrayList<>();
     }
 
-    public void init(Activity activity) {
+    public void init(ConnectActivity activity) {
         if (this.activity != null) {
             return;
         }
@@ -57,6 +59,13 @@ public class Preferences implements SharedPreferences.OnSharedPreferenceChangeLi
 
         return  null;
     }
+
+    public void clearSelectedDevice() {
+        SharedPreferences.Editor editor = getPreferences().edit();
+        editor.putString(KEY_PHONE_BLUETOOTH_ADDRESS, null);
+        editor.commit();
+    }
+
 
     public void setBluetoothDevice(BluetoothDevice device) {
         SharedPreferences.Editor editor = getPreferences().edit();

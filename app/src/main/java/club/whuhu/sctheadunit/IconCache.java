@@ -1,7 +1,13 @@
 package club.whuhu.sctheadunit;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
+import android.graphics.drawable.Icon;
 import android.util.Base64;
 
 import java.util.HashMap;
@@ -12,23 +18,28 @@ import club.whuhu.sctheadunit.controller.Controller;
 
 public class IconCache {
 
-    private final Dashboard dashboard;
-    private final Map<String, Bitmap> icons = new HashMap<>();
-
+    private final Map<String, Bitmap> icons;
     private final Bitmap dummy;
 
     private static IconCache instance = null;
+    private Activity activity;
 
-     public IconCache(Dashboard dashboard){
-        this.dashboard = dashboard;
-        this.dummy = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+    private IconCache() {
+        icons = new HashMap<>();
+        dummy = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
     }
 
-    public  static void init(Dashboard dashboard) {
-        instance = new IconCache(dashboard);
+    public synchronized void init(Activity activity) {
+        if (this.activity != null) {
+            return;
+        }
+        this.activity = activity;
     }
 
-    public static IconCache getInstance() {
+    public synchronized static IconCache getInstance() {
+        if (instance == null) {
+            instance = new IconCache();
+        }
         return instance;
     }
 
@@ -78,7 +89,7 @@ public class IconCache {
                             Storage.getInstance().storeIcon(md5, byteArray);
                             icons.put(md5, icon);
 
-                            dashboard.runOnUiThread(new Runnable() {
+                            activity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     callback.call(icon);
@@ -99,6 +110,46 @@ public class IconCache {
             }
 
             return dummy;
+        }
+    }
+
+    private Bitmap doInvert(Bitmap src) {
+        int height = src.getHeight();
+        int width = src.getWidth();
+
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+
+        ColorMatrix matrixGrayscale = new ColorMatrix();
+        matrixGrayscale.setSaturation(0);
+
+        ColorMatrix matrixInvert = new ColorMatrix();
+        matrixInvert.set(new float[]
+                {
+                        -1.0f, 0.0f, 0.0f, 0.0f, 255.0f,
+                        0.0f, -1.0f, 0.0f, 0.0f, 255.0f,
+                        0.0f, 0.0f, -1.0f, 0.0f, 255.0f,
+                        0.0f, 0.0f, 0.0f, 1.0f, 0.0f
+                });
+        matrixInvert.preConcat(matrixGrayscale);
+
+        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrixInvert);
+        paint.setColorFilter(filter);
+
+        canvas.drawBitmap(src, 0, 0, paint);
+        return bitmap;
+    }
+
+    public Bitmap getInvertedIcon(final String md5) {
+        synchronized (this) {
+            // check memory cache if already loaded
+            Bitmap icon = icons.get(md5);
+            if (icon == null) {
+                return null;
+            }
+
+            return doInvert(icon);
         }
     }
 }
